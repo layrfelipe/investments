@@ -6,7 +6,7 @@ from utils import add_suffix_to_ticker
 
 class Stocks:
     def __init__(self):
-        self.tickers = [add_suffix_to_ticker(ticker) for ticker in BIGGEST_BRAZILIAN_COMPANIES_TICKERS_LIST[0]]
+        self.tickers = [add_suffix_to_ticker(ticker) for ticker in BIGGEST_BRAZILIAN_COMPANIES_TICKERS_LIST[:5]]
         self.yf_tickers_objects = {}
         self.price_data = {}
         self.info_data = {}
@@ -21,10 +21,10 @@ class Stocks:
     def fill_tickers_objects(self):
         for ticker in self.get_tickers():
             self.yf_tickers_objects[ticker] = yf.Ticker(ticker)
-    
+
     def fetch_historical_price_data(self):
         for ticker in self.get_tickers():
-            history = self.yf_tickers_objects[ticker].history(period='10y', interval='1wk')
+            history = self.yf_tickers_objects[ticker].history(period='2y', interval='1wk')
             df_history = pd.DataFrame(history)
             df_history.rename(columns={'Close' : 'Price'}, inplace=True) 
             df_history = round(df_history['Price'], 2)
@@ -51,19 +51,18 @@ class Stocks:
                 'total_revenue': info['totalRevenue'] if 'totalRevenue' in info.keys() else None,
                 'total_debt': info['totalDebt'] if 'totalDebt' in info.keys() else None,
                 'debt_to_equity': info['debtToEquity'] if 'debtToEquity' in info.keys() else None,
-                'ebitda_margins': info['ebitdaMargins'] if 'ebitdaMargins' in info.keys() else None,
-                'profit_margins': info['profitMargins'] if 'profitMargins' in info.keys() else None,
-                'gross_margins': info['grossMargins'] if 'grossMargins' in info.keys() else None,
-                # 'earnings_quarterly_growth': round(info['earningsQuarterlyGrowth'], 2) if 'earningsQuarterlyGrowth' in info.keys() else None,
-                # 'earnings_growth': round(info['earningsGrowth'], 2) if 'earningsGrowth' in info.keys() else None,
-                # 'revenue_growth': round(info['revenueGrowth'], 2) if 'revenueGrowth' in info.keys() else None,
+                'ebitda_margins': round(info['ebitdaMargins'], 2) if 'ebitdaMargins' in info.keys() else None,
+                'profit_margins': round(info['profitMargins'], 2) if 'profitMargins' in info.keys() else None,
+                'gross_margins': round(info['grossMargins'], 2) if 'grossMargins' in info.keys() else None,
+                'earnings_quarterly_growth': round(info['earningsQuarterlyGrowth'], 2) if 'earningsQuarterlyGrowth' in info.keys() else None,
+                'earnings_growth': round(info['earningsGrowth'], 2) if 'earningsGrowth' in info.keys() else None,
+                'revenue_growth': round(info['revenueGrowth'], 2) if 'revenueGrowth' in info.keys() else None,
+                'fifty_day_average': round(info['fiftyDayAverage'], 2) if 'fiftyDayAverage' in info.keys() else None,
+                'two_hundred_day_average': round(info['twoHundredDayAverage'], 2) if 'twoHundredDayAverage' in info.keys() else None,
+                'audit_risk': info['auditRisk'] if 'auditRisk' in info.keys() else None,
+                'board_risk': info['boardRisk'] if 'boardRisk' in info.keys() else None,
+                'compensation_risk': info['compensationRisk'] if 'compensationRisk' in info.keys() else None,
+                'shareholder_rights_risk': info['shareHolderRightsRisk'] if 'shareHolderRightsRisk' in info.keys() else None,
+                'overall_risk': info['overallRisk'] if 'overallRisk' in info.keys() else None
             }
             self.info_data[ticker] = useful_info_dict
-
-# print('fiftyDayAverage: ', petrobras['fiftyDayAverage'])
-# print('twoHundredDayAverage: ', petrobras['twoHundredDayAverage'])
-# print('auditRisk: ', petrobras['auditRisk'])
-# print('boardRisk: ', petrobras['boardRisk'])
-# print('compensationRisk: ', petrobras['compensationRisk'])
-# print('shareHolderRightsRisk: ', petrobras['shareHolderRightsRisk'])
-# print('overallRisk: ', petrobras['overallRisk'])

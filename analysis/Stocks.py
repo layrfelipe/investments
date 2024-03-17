@@ -6,18 +6,20 @@ from utils import add_suffix_to_ticker
 
 class Stocks:
     def __init__(self):
-        self.tickers = [add_suffix_to_ticker(ticker) for ticker in BIGGEST_BRAZILIAN_COMPANIES_TICKERS_LIST[:3]]
+        self.tickers = [add_suffix_to_ticker(ticker) for ticker in BIGGEST_BRAZILIAN_COMPANIES_TICKERS_LIST]
         self.yf_tickers_objects = {}
         self.price_data = {}
         self.info_data = {}
         self.sectors = []
-        self.growth_rates_by_sectors = {}
+        self.growth_rates_by_sector = {}
+        self.market_cap_by_sector_10y_ago = {}
+        self.current_market_cap_by_sector = {}
 
         self.fill_tickers_objects()
         self.save_stock_info_data()
         self.save_sectors()
         self.fetch_historical_price_data()
-        self.set_growth_rates_by_sectors()
+        self.set_growth_rates_by_sector()
     
     def get_tickers(self):
         return self.tickers
@@ -28,7 +30,7 @@ class Stocks:
 
     def fetch_historical_price_data(self):
         for ticker in self.get_tickers():
-            history = self.yf_tickers_objects[ticker].history(period='2y', interval='1wk')
+            history = self.yf_tickers_objects[ticker].history(period='10y', interval='1wk')
             df_history = pd.DataFrame(history)
             df_history.rename(columns={'Close' : 'Price'}, inplace=True) 
             df_history = round(df_history['Price'], 2)
@@ -90,21 +92,21 @@ class Stocks:
     def get_sectors(self):
         return self.sectors
     
-    def set_growth_rates_by_sectors(self):
-        growth_rates_by_sectors_dict = {}
+    def set_growth_rates_by_sector(self):
+        growth_rates_by_sector_dict = {}
         for sector in self.get_sectors():
-            growth_rates_by_sectors_dict[sector] = 0
+            growth_rates_by_sector_dict[sector] = 0
             for ticker in self.get_tickers():
                 if self.info_data[ticker]['sector'] == sector:
                     oldest = self.price_data[ticker].iloc[0]
                     current = self.price_data[ticker].iloc[-1]
                     growth = (current - oldest) * 100 / oldest
-                    accumulated = growth_rates_by_sectors_dict[sector] + growth
-                    growth_rates_by_sectors_dict[sector] = round(accumulated, 2)
-        result_df = pd.DataFrame([growth_rates_by_sectors_dict], index=['growth'])
+                    accumulated = growth_rates_by_sector_dict[sector] + growth
+                    growth_rates_by_sector_dict[sector] = round(accumulated, 2)
+        result_df = pd.DataFrame([growth_rates_by_sector_dict], index=['growth'])
         result_df_transposed = result_df.T
         result_df_sorted = result_df_transposed.sort_values(by='growth', ascending=False)
-        self.growth_rates_by_sectors = result_df_sorted
+        self.growth_rates_by_sector = result_df_sorted
 
-    def get_growth_rates_by_sectors(self):
-        return self.growth_rates_by_sectors
+    def get_growth_rates_by_sector(self):
+        return self.growth_rates_by_sector

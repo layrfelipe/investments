@@ -1,4 +1,4 @@
-from .configs import YFINANCE_TICKER_SUFFIX
+from configs import YFINANCE_TICKER_SUFFIX
 
 def add_suffix_to_ticker(ticker):
     return f'{ticker}{YFINANCE_TICKER_SUFFIX}'

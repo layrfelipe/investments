@@ -6,7 +6,7 @@ from utils import add_suffix_to_ticker
 
 class Stocks:
     def __init__(self):
-        self.tickers = [add_suffix_to_ticker(ticker) for ticker in BIGGEST_BRAZILIAN_COMPANIES_TICKERS_LIST]
+        self.tickers = [add_suffix_to_ticker(ticker) for ticker in BIGGEST_BRAZILIAN_COMPANIES_TICKERS_LIST[:3]]
         self.yf_tickers_objects = {}
         self.price_data = {}
         self.info_data = {}
@@ -103,7 +103,8 @@ class Stocks:
                     growth_rates_by_sectors_dict[sector] = round(accumulated, 2)
         result_df = pd.DataFrame([growth_rates_by_sectors_dict], index=['growth'])
         result_df_transposed = result_df.T
-        self.growth_rates_by_sectors = result_df_transposed.sort_values(by='growth', ascending=False, inplace=True)
+        result_df_sorted = result_df_transposed.sort_values(by='growth', ascending=False)
+        self.growth_rates_by_sectors = result_df_sorted
 
     def get_growth_rates_by_sectors(self):
         return self.growth_rates_by_sectors

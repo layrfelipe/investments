@@ -1,20 +1,18 @@
 import pandas as pd
 import yfinance as yf
 
-from configs import BIGGEST_BRAZILIAN_COMPANIES_TICKERS_LIST
+from configs import TECNOLOGY_BRAZILIAN_COMPANIES_TICKERS_LIST
 from utils import add_suffix_to_ticker
 
-class Stocks:
+class TechStocks:
     def __init__(self):
-        self.tickers = [add_suffix_to_ticker(ticker) for ticker in BIGGEST_BRAZILIAN_COMPANIES_TICKERS_LIST[:5]]
+        self.tickers = [add_suffix_to_ticker(ticker) for ticker in TECNOLOGY_BRAZILIAN_COMPANIES_TICKERS_LIST]
         self.yf_tickers_objects = {}
         self.price_data = {}
         self.info_data = {}
-        self.sectors = []
 
         self.fill_tickers_objects()
         self.save_stock_info_data()
-        self.save_sectors()
         self.fetch_historical_price_data()
     
     def get_tickers(self):
@@ -77,58 +75,7 @@ class Stocks:
                 result_array += [ticker]
         return result_array
 
-    def save_sectors(self):
-        result_array = []
-        for ticker in self.get_tickers():
-            ticker_sector = self.info_data[ticker]['sector']
-            if not ticker_sector in result_array:
-                result_array.append(ticker_sector)
-        self.sectors = result_array
-
     def get_sectors(self):
         return self.sectors
     
-    def get_sectors_market_cap(self):
-        sectors_market_cap_dict = {}
-        for sector in self.get_sectors():
-            sectors_market_cap_dict[sector] = 0
-            for ticker in self.get_tickers():
-                if self.info_data[ticker]['sector'] == sector:
-                    market_cap = self.info_data[ticker]['market_cap']
-                    accumulated = sectors_market_cap_dict[sector] + market_cap
-                    sectors_market_cap_dict[sector] = round(accumulated, 2)
-        result_df = pd.DataFrame([sectors_market_cap_dict], index=['market_cap'])
-        result_df_transposed = result_df.T
-        result_df_sorted = result_df_transposed.sort_values(by='market_cap', ascending=False)
-        return result_df_sorted
-
-    def get_sectors_market_cap(self):
-        sectors_market_cap_dict = {}
-        for sector in self.get_sectors():
-            sectors_market_cap_dict[sector] = 0
-            for ticker in self.get_tickers():
-                if self.info_data[ticker]['sector'] == sector:
-                    market_cap = self.info_data[ticker]['market_cap']
-                    accumulated = sectors_market_cap_dict[sector] + market_cap
-                    sectors_market_cap_dict[sector] = round(accumulated, 2)
-        result_df = pd.DataFrame([sectors_market_cap_dict], index=['market_cap'])
-        result_df_transposed = result_df.T
-        result_df_sorted = result_df_transposed.sort_values(by='market_cap', ascending=False)
-        return result_df_sorted
-
-    def get_sectors_companies(self):
-        sectors_companies_dict = {}
-        for sector in self.get_sectors():
-            companies = self.get_companies_by_sector(sector)
-            sectors_companies_dict[sector] = companies
-        result_df = pd.DataFrame([sectors_companies_dict], index=['companies'])
-        result_df_transposed = result_df.T
-        result_df_sorted = result_df_transposed.sort_values(by='companies', ascending=False)
-        return result_df_sorted
     
-    def get_sectors_companies_amount(self):
-        df = self.get_sectors_companies()
-        df = df.reset_index()
-        df.rename(columns={'index' : 'sector'}, inplace=True) 
-        df['companies'] = df['companies'].apply(lambda x: len(x))
-        return df
